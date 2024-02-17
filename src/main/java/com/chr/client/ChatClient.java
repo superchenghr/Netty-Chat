@@ -38,6 +38,8 @@ public class ChatClient {
         MessageCodecSharable MESSAGE_CODEC = new MessageCodecSharable();
         CountDownLatch WAIT_FOR_LOGIN = new CountDownLatch(1);
         AtomicBoolean LOGIN = new AtomicBoolean(false);
+        AtomicBoolean EXIT = new AtomicBoolean(false);
+        Scanner scanner = new Scanner(System.in);
         try {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.channel(NioSocketChannel.class);
@@ -52,7 +54,6 @@ public class ChatClient {
                         @Override
                         public void channelActive(ChannelHandlerContext ctx) throws Exception {
                             new Thread(() -> {
-                                Scanner scanner = new Scanner(System.in);
                                 System.out.print("username:");
                                 String username = scanner.nextLine();
                                 System.out.print("password:");

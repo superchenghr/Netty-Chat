@@ -32,10 +32,7 @@ public class MessageCodec extends ByteToMessageCodec<Message> {
         // 无意义，对齐填充
         out.writeByte(0xff);
         // 6. 获取内容的字节数组
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(bos);
-        oos.writeObject(msg);
-        byte[] bytes = bos.toByteArray();
+        byte[] bytes = Serializer.Algorithm.Java.serialize(msg);
         // 7. 长度
         out.writeInt(bytes.length);
         // 8. 写入内容
@@ -52,9 +49,10 @@ public class MessageCodec extends ByteToMessageCodec<Message> {
         in.readByte();
         int length = in.readInt();
         byte[] bytes = new byte[length];
-        in.readBytes(bytes, 0, length);
-        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes));
-        Message message = (Message) ois.readObject();
+        // 序列化类型
+        Serializer.Algorithm algorithm = Serializer.Algorithm.values()[serializerType];
+        // 消息类型
+        Message message = (Message) algorithm.deserialize(Message.getMessageClass(messageType), bytes);
         log.debug("{}, {}, {}, {}, {}, {}", magicNum, version, serializerType, messageType, sequenceId, length);
         log.debug("{}", message);
         out.add(message);
